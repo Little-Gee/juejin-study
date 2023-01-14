@@ -1,0 +1,50 @@
+{
+    "name": "juejin-study",
+    "version": "0.0.1",
+    "description": "An extension for juejin, help you to study",
+    "scripts": {
+        "prepare": "husky install",
+        "watch": "vite build --watch",
+        "build": "vite build",
+        "commit": "git-cz"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/GreenHandLittleWhite/juejin-study"
+    },
+    "author": "GreenHandLittleWhite",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/GreenHandLittleWhite/juejin-study/issues"
+    },
+    "homepage": "https://github.com/GreenHandLittleWhite/juejin-study#readme",
+    "devDependencies": {
+        "@commitlint/cli": "^17.4.2",
+        "@commitlint/config-conventional": "^17.4.2",
+        "@types/chrome": "^0.0.208",
+        "@types/node": "^18.11.18",
+        "@typescript-eslint/eslint-plugin": "^5.48.1",
+        "@typescript-eslint/parser": "^5.48.1",
+        "commitizen": "^4.2.6",
+        "cz-conventional-changelog": "^3.3.0",
+        "eslint": "^8.31.0",
+        "eslint-config-prettier": "^8.6.0",
+        "eslint-plugin-prettier": "^4.2.1",
+        "husky": "^8.0.3",
+        "less": "^4.1.3",
+        "lint-staged": "^13.1.0",
+        "prettier": "^2.8.2",
+        "typescript": "^4.9.4",
+        "vite": "^4.0.4"
+    },
+    "lint-staged": {
+        "*.{ts,js}": [
+            "eslint --fix"
+        ]
+    },
+    "config": {
+        "commitizen": {
+            "path": "node_modules/cz-conventional-changelog"
+        }
+    }
+}
