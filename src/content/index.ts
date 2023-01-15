@@ -13,7 +13,10 @@ function removeActiveClass() {
 function addActiveClass(anchors: NodeListOf<HTMLAnchorElement>, id?: string) {
     for (let i = 0; i < anchors.length; i++) {
         if (anchors[i].href.split('#')[1] === id) {
-            anchors[i]?.parentElement?.parentElement?.classList.add('active');
+            if (!anchors[i]?.parentElement?.parentElement?.classList.contains('active')) {
+                removeActiveClass();
+                anchors[i].parentElement?.parentElement?.classList.add('active');
+            }
             break;
         }
     }
@@ -24,7 +27,6 @@ function activeAnchor() {
     for (let i = globalHeadings.length - 1; i >= 0; i--) {
         // i === 0，初始化时没有滚动，高度不够，默认高亮第一个
         if (document.documentElement.scrollTop >= globalHeadings[i].offsetTop - 96 || i === 0) {
-            removeActiveClass();
             addActiveClass(globalAnchors, globalHeadings[i].dataset.id);
             break;
         }
@@ -38,38 +40,32 @@ function onScroll() {
     activeAnchor();
 }
 
-function appendCatalog(headings: NodeListOf<HTMLElement>) {
-    const catalogContainer = document.createElement('div');
-    catalogContainer.className = `${baseClass} article-catalog`;
+function appendSkeleton() {
     const fragment = document.createDocumentFragment();
 
-    const toggleContainer = document.createElement('div');
-    toggleContainer.className = `${baseClass} catalog-toggle-container`;
-    toggleContainer.onclick = function (e) {
-        if (e.target instanceof Element) {
-            if (e.target.parentElement?.classList.contains('collapsed')) {
-                e.target.parentElement.classList.remove('collapsed');
-            } else {
-                e.target.parentElement?.classList.add('collapsed');
-            }
-        }
-    };
-    const toggle = document.createElement('div');
-    toggle.innerText = '❯';
-    toggle.className = `${baseClass} catalog-toggle`;
-    toggleContainer.appendChild(toggle);
-    fragment.appendChild(toggleContainer);
+    const skeleton = document.createElement('div');
+    skeleton.className = `${baseClass} catalog-skeleton`;
 
-    const catalogTitle = document.createElement('div');
-    catalogTitle.innerText = '目录';
-    catalogTitle.className = `${baseClass} catalog-title`;
-    fragment.appendChild(catalogTitle);
+    for (let i = 0; i < 4; i++) {
+        const skeletonLine = document.createElement('div');
+        skeletonLine.className = `${baseClass} catalog-skeleton-line`;
+        skeleton.appendChild(skeletonLine);
+    }
+    fragment.appendChild(skeleton);
 
-    const catalogBody = document.createElement('div');
-    catalogBody.className = `${baseClass} catalog-body`;
+    const catalogBody = document.querySelector(`.${baseClass}.catalog-body`);
+    if (catalogBody?.firstChild) {
+        catalogBody.removeChild(catalogBody.firstChild);
+    }
+    catalogBody?.appendChild(fragment);
+}
+
+function appendCatalogList(headings: NodeListOf<HTMLElement>) {
+    const fragment = document.createDocumentFragment();
 
     const catalogUl = document.createElement('ul');
     catalogUl.className = `${baseClass} catalog-list`;
+    fragment.appendChild(catalogUl);
 
     const liArr: {
         level: string;
@@ -120,11 +116,47 @@ function appendCatalog(headings: NodeListOf<HTMLElement>) {
         }
     });
 
-    catalogBody.appendChild(catalogUl);
-    fragment.appendChild(catalogBody);
+    const catalogBody = document.querySelector(`.${baseClass}.catalog-body`);
+    if (catalogBody?.firstChild) {
+        catalogBody.removeChild(catalogBody.firstChild);
+    }
+    catalogBody?.appendChild(fragment);
+}
 
-    catalogContainer.appendChild(fragment);
-    document.body.appendChild(catalogContainer);
+function appendCatalogContainer() {
+    const fragment = document.createDocumentFragment();
+
+    const catalogContainer = document.createElement('div');
+    catalogContainer.className = `${baseClass} article-catalog`;
+    fragment.appendChild(catalogContainer);
+
+    const toggleContainer = document.createElement('div');
+    toggleContainer.className = `${baseClass} catalog-toggle-container`;
+    toggleContainer.onclick = function (e) {
+        if (e.target instanceof Element) {
+            if (e.target.parentElement?.classList.contains('collapsed')) {
+                e.target.parentElement.classList.remove('collapsed');
+            } else {
+                e.target.parentElement?.classList.add('collapsed');
+            }
+        }
+    };
+    const toggle = document.createElement('div');
+    toggle.innerText = '❯';
+    toggle.className = `${baseClass} catalog-toggle`;
+    toggleContainer.appendChild(toggle);
+    catalogContainer.appendChild(toggleContainer);
+
+    const catalogTitle = document.createElement('div');
+    catalogTitle.innerText = '目录';
+    catalogTitle.className = `${baseClass} catalog-title`;
+    catalogContainer.appendChild(catalogTitle);
+
+    const catalogBody = document.createElement('div');
+    catalogBody.className = `${baseClass} catalog-body`;
+    catalogContainer.appendChild(catalogBody);
+
+    document.body.appendChild(fragment);
 }
 
 function getAllHeadings(): NodeListOf<HTMLElement> {
@@ -157,7 +189,7 @@ async function getHeadings() {
 }
 
 function matchLocation() {
-    const match = window.location.pathname.match(/\/book\/(\d*)\/section\/(\d*)/);
+    const match = window.location.pathname.match(/\/(book|video)\/(\d+)\/section\/(\d+)/);
     return match;
 }
 
@@ -169,13 +201,20 @@ async function handleGetBookData() {
 
     // 获取所有标题
     const headings = await getHeadings();
-
     if (!headings) {
+        const catalogBody = document.querySelector(`.${baseClass}.catalog-body`);
+        if (catalogBody?.firstChild) {
+            catalogBody.removeChild(catalogBody.firstChild);
+        }
+        const emptyTip = document.createElement('div');
+        emptyTip.innerText = '没有获取到';
+        emptyTip.className = `${baseClass} catalog-empty`;
+        catalogBody?.appendChild(emptyTip);
         return;
     }
 
     // 显示目录
-    appendCatalog(headings);
+    appendCatalogList(headings);
 
     globalHeadings = headings;
     globalAnchors = document.querySelectorAll(`.${baseClass}.article-catalog .catalog-aTag`);
@@ -185,15 +224,20 @@ async function handleGetBookData() {
 
 function handleTabUpdated() {
     const match = matchLocation();
+    const oldCatalogContainer = document.querySelector(`.${baseClass}.article-catalog`);
     if (!match) {
+        if (oldCatalogContainer) {
+            oldCatalogContainer.remove();
+        }
+
         return;
     }
 
-    // 如果原来有目录了，则删除原来的
-    const oldCatalogContainer = document.querySelector(`.${baseClass}.article-catalog`);
-    if (oldCatalogContainer) {
-        oldCatalogContainer.remove();
+    if (!oldCatalogContainer) {
+        appendCatalogContainer();
     }
+
+    appendSkeleton();
 }
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {

@@ -22,7 +22,7 @@
             }
         }
     }
-    .catalog-toggle-container {
+    &.catalog-toggle-container {
         position: absolute;
         top: 8px;
         left: -20px;
@@ -43,7 +43,7 @@
             pointer-events: none;
         }
     }
-    .catalog-title {
+    &.catalog-title {
         font-weight: 500;
         padding: 1.333rem 0;
         margin: 0 1.667rem;
@@ -52,13 +52,13 @@
         color: #1d2129;
         border-bottom: 1px solid #e4e6eb;
     }
-    .catalog-body {
+    &.catalog-body {
         position: relative;
         max-height: 460px;
         margin: 8px 4px 0 0;
         overflow: auto;
     }
-    .catalog-list {
+    &.catalog-list {
         position: relative;
         line-height: 22px;
         padding: 0 0 12px;
@@ -136,5 +136,44 @@
                 }
             }
         }
+    }
+    &.catalog-empty {
+        padding: 12px 16px 20px 20px;
+        font-size: 1.167rem;
+        color: #999;
+    }
+    &.catalog-skeleton {
+        padding: 12px 16px 20px 20px;
+        overflow: hidden;
+
+        &-line {
+            width: 100%;
+            margin-bottom: 16px;
+            height: 14px;
+            background: linear-gradient(90deg, #e4e6eb, rgba(228, 230, 235, 0.5), #e4e6eb);
+            background-size: 480px 480px;
+            animation: skeleton 0.6s linear infinite;
+
+            &:first-child {
+                width: 40%;
+                margin-top: 8px;
+            }
+            &:nth-child(3) {
+                width: 80%;
+            }
+            &:last-child {
+                width: 60%;
+                margin-bottom: 0;
+            }
+        }
+    }
+}
+
+@keyframes skeleton {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 480px 0;
     }
 }
