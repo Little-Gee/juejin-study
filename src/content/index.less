@@ -1,3 +1,7 @@
+@shadow-color: rgb(0 0 0 / 15%);
+@base-padding: 11px;
+@padding-distance: 15px;
+
 .juejin-study {
     &.article-catalog {
         position: fixed;
@@ -7,7 +11,37 @@
         padding: 0;
         border-radius: 4px;
         background: #fff;
-        box-shadow: 1px 1px 8px rgb(0 0 0 / 15%);
+        box-shadow: 0px 0px 8px @shadow-color;
+        transition: right 0.3s;
+
+        &.collapsed {
+            right: -25rem;
+
+            .catalog-toggle {
+                transform: rotate(180deg);
+            }
+        }
+    }
+    .catalog-toggle-container {
+        position: absolute;
+        top: 8px;
+        left: -20px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 40px;
+        border-radius: 4px 0 0 4px;
+        box-shadow: -2px -2px 3px -1px @shadow-color, -2px 2px 3px -1px @shadow-color;
+        cursor: pointer;
+
+        .catalog-toggle {
+            font-size: 16px;
+            color: #ccc;
+            transition: transform 0.3s;
+            pointer-events: none;
+        }
     }
     .catalog-title {
         font-weight: 500;
@@ -78,27 +112,27 @@
             &.d1 {
                 > .a-container {
                     margin: 0;
-                    padding: 0 0 0 11px;
+                    padding: 0 0 0 @base-padding;
                 }
             }
             &.d2 {
-                .a-container {
-                    padding-left: 26px;
+                > .a-container {
+                    padding-left: @base-padding + @padding-distance * 1;
                 }
             }
             &.d3 {
                 > .a-container {
-                    padding-left: 41px;
+                    padding-left: @base-padding + @padding-distance * 2;
                 }
             }
             &.d4 {
                 > .a-container {
-                    padding-left: 56px;
+                    padding-left: @base-padding + @padding-distance * 3;
                 }
             }
             &.d5 {
                 > .a-container {
-                    padding-left: 61px;
+                    padding-left: @base-padding + @padding-distance * 4;
                 }
             }
         }

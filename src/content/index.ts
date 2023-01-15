@@ -1,15 +1,16 @@
 let globalHeadings: NodeListOf<HTMLElement>;
 let globalAnchors: NodeListOf<HTMLAnchorElement>;
+const baseClass = 'juejin-study';
 
 window.addEventListener('scroll', onScroll);
 
-function removeClass() {
-    document.querySelectorAll(`.juejin-study.item`).forEach((item) => {
+function removeActiveClass() {
+    document.querySelectorAll(`.${baseClass}.item`).forEach((item) => {
         item.classList.remove('active');
     });
 }
 
-function addClass(anchors: NodeListOf<HTMLAnchorElement>, id?: string) {
+function addActiveClass(anchors: NodeListOf<HTMLAnchorElement>, id?: string) {
     for (let i = 0; i < anchors.length; i++) {
         if (anchors[i].href.split('#')[1] === id) {
             anchors[i]?.parentElement?.parentElement?.classList.add('active');
@@ -23,8 +24,8 @@ function activeAnchor() {
     for (let i = globalHeadings.length - 1; i >= 0; i--) {
         // i === 0，初始化时没有滚动，高度不够，默认高亮第一个
         if (document.documentElement.scrollTop >= globalHeadings[i].offsetTop - 96 || i === 0) {
-            removeClass();
-            addClass(globalAnchors, globalHeadings[i].dataset.id);
+            removeActiveClass();
+            addActiveClass(globalAnchors, globalHeadings[i].dataset.id);
             break;
         }
     }
@@ -39,19 +40,36 @@ function onScroll() {
 
 function appendCatalog(headings: NodeListOf<HTMLElement>) {
     const catalogContainer = document.createElement('div');
-    catalogContainer.className = 'juejin-study article-catalog';
+    catalogContainer.className = `${baseClass} article-catalog`;
     const fragment = document.createDocumentFragment();
+
+    const toggleContainer = document.createElement('div');
+    toggleContainer.className = `${baseClass} catalog-toggle-container`;
+    toggleContainer.onclick = function (e) {
+        if (e.target instanceof Element) {
+            if (e.target.parentElement?.classList.contains('collapsed')) {
+                e.target.parentElement.classList.remove('collapsed');
+            } else {
+                e.target.parentElement?.classList.add('collapsed');
+            }
+        }
+    };
+    const toggle = document.createElement('div');
+    toggle.innerText = '❯';
+    toggle.className = `${baseClass} catalog-toggle`;
+    toggleContainer.appendChild(toggle);
+    fragment.appendChild(toggleContainer);
 
     const catalogTitle = document.createElement('div');
     catalogTitle.innerText = '目录';
-    catalogTitle.className = 'juejin-study catalog-title';
+    catalogTitle.className = `${baseClass} catalog-title`;
     fragment.appendChild(catalogTitle);
 
     const catalogBody = document.createElement('div');
-    catalogBody.className = 'juejin-study catalog-body';
+    catalogBody.className = `${baseClass} catalog-body`;
 
     const catalogUl = document.createElement('ul');
-    catalogUl.className = 'juejin-study catalog-list';
+    catalogUl.className = `${baseClass} catalog-list`;
 
     const liArr: {
         level: string;
@@ -61,7 +79,7 @@ function appendCatalog(headings: NodeListOf<HTMLElement>) {
     headings.forEach((item, i) => {
         const itemTagLevel = item.tagName.slice(-1);
         const catalogLi = document.createElement('li');
-        catalogLi.className = `juejin-study item d${itemTagLevel}`;
+        catalogLi.className = `${baseClass} item d${itemTagLevel}`;
         const aContainer = document.createElement('div');
         aContainer.className = 'a-container';
         const a = document.createElement('a');
@@ -72,8 +90,6 @@ function appendCatalog(headings: NodeListOf<HTMLElement>) {
         a.onclick = function (e) {
             if (e.preventDefault) {
                 e.preventDefault();
-            } else {
-                e.returnValue = false;
             }
 
             const top = item.getBoundingClientRect().top;
@@ -162,19 +178,19 @@ async function handleGetBookData() {
     appendCatalog(headings);
 
     globalHeadings = headings;
-    globalAnchors = document.querySelectorAll(`.juejin-study.article-catalog .catalog-aTag`);
+    globalAnchors = document.querySelectorAll(`.${baseClass}.article-catalog .catalog-aTag`);
 
     activeAnchor();
 }
 
 function handleTabUpdated() {
     const match = matchLocation();
-    if (match) {
+    if (!match) {
         return;
     }
 
     // 如果原来有目录了，则删除原来的
-    const oldCatalogContainer = document.querySelector('.juejin-study.article-catalog');
+    const oldCatalogContainer = document.querySelector(`.${baseClass}.article-catalog`);
     if (oldCatalogContainer) {
         oldCatalogContainer.remove();
     }
