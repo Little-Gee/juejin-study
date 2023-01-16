@@ -1,6 +1,8 @@
+const baseClass = 'juejin-study';
+const collapsedKey = 'juejinCollapsed';
+
 let globalHeadings: NodeListOf<HTMLElement>;
 let globalAnchors: NodeListOf<HTMLAnchorElement>;
-const baseClass = 'juejin-study';
 
 window.addEventListener('scroll', onScroll);
 
@@ -123,11 +125,13 @@ function appendCatalogList(headings: NodeListOf<HTMLElement>) {
     catalogBody?.appendChild(fragment);
 }
 
-function appendCatalogContainer() {
+async function appendCatalogContainer() {
     const fragment = document.createDocumentFragment();
 
     const catalogContainer = document.createElement('div');
-    catalogContainer.className = `${baseClass} article-catalog`;
+    const storage = await chrome.storage.local.get(collapsedKey);
+    const collapsed = storage[collapsedKey];
+    catalogContainer.className = `${baseClass} article-catalog${!!collapsed ? ' collapsed' : ''}`;
     fragment.appendChild(catalogContainer);
 
     const toggleContainer = document.createElement('div');
@@ -136,8 +140,10 @@ function appendCatalogContainer() {
         if (e.target instanceof Element) {
             if (e.target.parentElement?.classList.contains('collapsed')) {
                 e.target.parentElement.classList.remove('collapsed');
+                chrome.storage.local.remove(collapsedKey);
             } else {
                 e.target.parentElement?.classList.add('collapsed');
+                chrome.storage.local.set({ [collapsedKey]: true });
             }
         }
     };
@@ -217,7 +223,7 @@ async function handleGetBookData() {
     activeAnchor();
 }
 
-function handleTabUpdated() {
+async function handleTabUpdated() {
     const match = matchLocation();
     const oldCatalogContainer = document.querySelector(`.${baseClass}.article-catalog`);
     if (!match) {
@@ -229,7 +235,7 @@ function handleTabUpdated() {
     }
 
     if (!oldCatalogContainer) {
-        appendCatalogContainer();
+        await appendCatalogContainer();
     }
 
     appendSkeleton();

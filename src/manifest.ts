@@ -20,7 +20,7 @@ const manifest: chrome.runtime.ManifestV3 = {
     icons: {
         '128': 'icon.png'
     },
-    permissions: ['webRequest'],
+    permissions: ['webRequest', 'storage'],
     host_permissions: ['<all_urls>']
 };
 
