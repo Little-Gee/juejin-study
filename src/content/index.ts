@@ -159,29 +159,24 @@ function appendCatalogContainer() {
     document.body.appendChild(fragment);
 }
 
-function getAllHeadings(): NodeListOf<HTMLElement> {
-    return document.querySelectorAll('.article-content .markdown-body h1, h2, h3, h4, h5');
-}
-
-function getHeadingsWithDelay() {
-    return new Promise<NodeListOf<HTMLElement> | false>((resolve, reject) => {
+// 默认有 100 延迟是因为使用浏览器前进后退时，获取到的标题不是最新的，暂时没想到好的办法
+function getHeadingsWithDelay(delay = 100) {
+    return new Promise<NodeListOf<HTMLElement>>((resolve) => {
         setTimeout(() => {
-            const headings = getAllHeadings();
-            if (!headings.length) {
-                resolve(false);
-                return;
-            }
+            const headings: NodeListOf<HTMLElement> = document.querySelectorAll(
+                '.article-content .markdown-body h1, h2, h3, h4, h5'
+            );
             resolve(headings);
-        }, 1000);
+        }, delay);
     });
 }
 
 async function getHeadings() {
-    const headings = getAllHeadings();
+    const headings = await getHeadingsWithDelay();
 
     if (!headings.length) {
         // 防止没拿到，再试一次
-        const res = await getHeadingsWithDelay();
+        const res = await getHeadingsWithDelay(1000);
         return res;
     }
 
@@ -240,7 +235,7 @@ function handleTabUpdated() {
     appendSkeleton();
 }
 
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.msg === 'tabOnUpdated') {
         handleTabUpdated();
     }
