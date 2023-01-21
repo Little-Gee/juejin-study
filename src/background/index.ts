@@ -16,6 +16,10 @@ chrome.webRequest.onCompleted.addListener(
 );
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (!tab.url?.match(/^https:\/\/juejin\.cn.*/)) {
+        return;
+    }
+
     if (changeInfo.status === 'complete') {
         chrome.tabs.sendMessage(tabId, { msg: 'tabOnUpdated' });
     }

@@ -21,7 +21,7 @@ const manifest: chrome.runtime.ManifestV3 = {
         '128': 'icon.png'
     },
     permissions: ['webRequest', 'storage'],
-    host_permissions: ['<all_urls>']
+    host_permissions: ['*://*.juejin.cn/*']
 };
 
 export default manifest;
