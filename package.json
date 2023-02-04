@@ -1,6 +1,6 @@
 {
     "name": "juejin-study",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "An extension for juejin, help you to study",
     "scripts": {
         "prepare": "husky install",

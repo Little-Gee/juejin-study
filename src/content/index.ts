@@ -202,7 +202,7 @@ async function handleGetBookData() {
 
     // 获取所有标题
     const headings = await getHeadings();
-    if (!headings) {
+    if (!headings.length) {
         const catalogBody = document.querySelector(`.${baseClass}.catalog-body`);
         if (catalogBody?.firstChild) {
             catalogBody.removeChild(catalogBody.firstChild);
